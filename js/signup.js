@@ -14,9 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     //show or hide the occupation other box upon selection of "other..."
-    var occupationSelect = signupForm.elements['occupation'];
     document.addEventListener('change', function() {
-        var occupationIsOther = occupationSelect.value == 'other';
+        var occupationIsOther = signupForm.elements['occupation'].value == 'other';
         signupForm.elements['occupationOther'].style.display = occupationIsOther ?  'block' : 'none';
     });
 
@@ -29,11 +28,42 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     //stop form from submitting and ask for validation
-    signupForm.addEventListener('submit', function() {
-        if (signupForm.preventDefault) {
-            signupForm.preventDefault();
+    signupForm.addEventListener('submit', function(evt) {
+        evt.returnValue = formValidate(this);
+
+        if (!evt.returnValue && evt.preventDefault) {
+            evt.preventDefault();
         }
-        signupForm.returnValue = false;
-        return false;
+        return evt.returnValue;
     });
+
+    //perform form validation
+    function formValidate(form) {
+        var requiredFields = ['firstName', 'lastName', 'address1', 'city', 'state', 'zip', 'birthdate'];
+        var formValid = true;
+
+        //validate general required fields
+        for (i = 0; i < requiredFields.length; ++i) {
+            formValid &= fieldValidate(form.elements[requiredFields[i]]);
+        }
+
+        //validate other field of occupation is "other..."
+        if(form.elements['occupation'].value == 'other') {
+            formValid &= fieldValidate(form.elements['occupationOther']);
+        }
+    }
+
+    //perform field validation
+    function fieldValidate(field) {
+        var value = field.value.trim();
+        var valid = value.length > 0;
+
+        if(valid) {
+            field.className = 'form-control';
+        } else {
+            field.className = 'form-control invalid-field';
+        }
+
+        return valid;
+    }
 });
