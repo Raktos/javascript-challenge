@@ -66,4 +66,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return valid;
     }
+
+    //TODO zip validation
+
+    //TODO age validation
 });
