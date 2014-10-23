@@ -29,12 +29,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //stop form from submitting and ask for validation
     signupForm.addEventListener('submit', function(evt) {
-        evt.returnValue = formValidate(this);
+        try {
 
-        if (!evt.returnValue && evt.preventDefault) {
+        } catch(exception) {
+
+        }
+
+        if (evt.preventDefault) {
             evt.preventDefault();
         }
-        return evt.returnValue;
+        evt.returnValue = false;
+        return false;
     });
 
     //perform form validation
@@ -51,6 +56,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if(form.elements['occupation'].value == 'other') {
             formValid &= fieldValidate(form.elements['occupationOther']);
         }
+
+        //validate zip
+        formValid &= zipValidate(form.elements['zip']);
     }
 
     //perform field validation
@@ -58,16 +66,29 @@ document.addEventListener('DOMContentLoaded', function() {
         var value = field.value.trim();
         var valid = value.length > 0;
 
+        validationFeedback(valid, field);
+
+        return valid;
+    }
+
+    //perform zip validation
+    function zipValidate(field) {
+         var valid = new RegExp('^\\d{5}$').test(field.value);
+
+        validationFeedback(valid, field);
+
+        return valid;
+    }
+
+    function validationFeedback(valid, field) {
         if(valid) {
             field.className = 'form-control';
         } else {
             field.className = 'form-control invalid-field';
         }
-
-        return valid;
     }
 
-    //TODO zip validation
+    //TODO function ageValidate()
 
-    //TODO age validation
+    //TODO function displayError()
 });
