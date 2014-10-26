@@ -29,12 +29,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //stop form from submitting and ask for validation
     signupForm.addEventListener('submit', function(evt) {
-        try {
+        //validate
+        //try{
+            formValidate(this);
+        //} catch(exceptiopn) {
+        //    console.log(exception);
+        //}
 
-        } catch(exception) {
-
-        }
-
+        //stop default form submission
         if (evt.preventDefault) {
             evt.preventDefault();
         }
@@ -44,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //perform form validation
     function formValidate(form) {
-        var requiredFields = ['firstName', 'lastName', 'address1', 'city', 'state', 'zip', 'birthdate'];
+        var requiredFields = ['firstName', 'lastName', 'address1', 'city', 'state', 'zip'];
         var formValid = true;
 
         //validate general required fields
@@ -59,9 +61,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         //validate zip
         formValid &= zipValidate(form.elements['zip']);
+
+        //validate age
+        try{
+            formValid &= ageValidate(form.elements['birthdate']);
+        } catch(exception) {
+            ageError(exception);
+        }
     }
 
-    //perform field validation
+    //perform field validation for general field
     function fieldValidate(field) {
         var value = field.value.trim();
         var valid = value.length > 0;
@@ -72,10 +81,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     //perform zip validation
-    function zipValidate(field) {
-         var valid = new RegExp('^\\d{5}$').test(field.value);
+    function zipValidate(zip) {
+         var valid = new RegExp('^\\d{5}$').test(zip.value);
 
-        validationFeedback(valid, field);
+        validationFeedback(valid, zip);
 
         return valid;
     }
@@ -88,7 +97,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    //TODO function ageValidate()
+    //validate age
+    function ageValidate(dob) {
+        var valid = moment().isValid(dob);
 
-    //TODO function displayError()
+        validationFeedback(valid, dob);
+
+        if(!valid) {
+            throw new Error('Please enter a valid date mm/dd/yyyy');
+        } else if(13 > moment.diff(dob, 'years')) {
+            throw new Error('You must be 13 or older to register');
+        } else {
+            return valid;
+        }
+    }
+
+    //displays error on age validation
+    function ageError(error) {
+        var msgElem = document.getElementById('birthdateMessage');
+        msgElem.innerHTML = error;
+    }
 });
+
+//TODO ageValidation is calling a nonexistent function somewhere
