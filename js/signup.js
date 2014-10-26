@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         signupForm.elements['occupationOther'].style.display = occupationIsOther ?  'block' : 'none';
     });
 
-    //confirms the user would like to
+    //confirms the user would like to leave
     var exitButton = document.getElementById('cancelButton');
     exitButton.addEventListener('click', function() {
         if(window.confirm('Do you really want to leave?')) {
@@ -27,26 +27,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    //stop form from submitting and ask for validation
+    //ask for validation, stop form from submitting if invalid
     signupForm.addEventListener('submit', function(evt) {
-        //validate
-        //try{
-            formValidate(this);
-        //} catch(exceptiopn) {
-        //    console.log(exception);
-        //}
-
-        //stop default form submission
-        if (evt.preventDefault) {
+        evt.returnValue = formValidate(this);
+        if (!evt.returnValue && evt.preventDefault) {
             evt.preventDefault();
         }
-        evt.returnValue = false;
-        return false;
+        return evt.returnValue;
     });
 
     //perform form validation
     function formValidate(form) {
-        var requiredFields = ['firstName', 'lastName', 'address1', 'city', 'state', 'zip'];
+        var requiredFields = ['firstName', 'lastName', 'address1', 'city', 'state', 'zip', 'birthdate'];
         var formValid = true;
 
         //validate general required fields
@@ -54,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formValid &= fieldValidate(form.elements[requiredFields[i]]);
         }
 
-        //validate other field of occupation is "other..."
+        //validate other field if occupation is "other..."
         if(form.elements['occupation'].value == 'other') {
             formValid &= fieldValidate(form.elements['occupationOther']);
         }
@@ -66,11 +58,13 @@ document.addEventListener('DOMContentLoaded', function() {
         try{
             formValid &= ageValidate(form.elements['birthdate']);
         } catch(exception) {
+            formValid = false;
             ageError(exception);
         }
+        return formValid;
     }
 
-    //perform field validation for general field
+    //perform field validation for a general field
     function fieldValidate(field) {
         var value = field.value.trim();
         var valid = value.length > 0;
@@ -89,6 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return valid;
     }
 
+    //update the field's display for valid or invalid input
     function validationFeedback(valid, field) {
         if(valid) {
             field.className = 'form-control';
@@ -97,26 +92,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    //validate age
-    function ageValidate(dob) {
-        var valid = moment().isValid(dob);
-
-        validationFeedback(valid, dob);
-
-        if(!valid) {
-            throw new Error('Please enter a valid date mm/dd/yyyy');
-        } else if(13 > moment.diff(dob, 'years')) {
+    //validate age is over 13
+    function ageValidate(dobField) {
+        if(13 > moment().diff(dobField.value, 'years')) {
             throw new Error('You must be 13 or older to register');
         } else {
-            return valid;
+            ageError('');
         }
+        return true;
     }
 
-    //displays error on age validation
+    //displays error when under 13
     function ageError(error) {
         var msgElem = document.getElementById('birthdateMessage');
+        console.log(error);
         msgElem.innerHTML = error;
     }
 });
-
-//TODO ageValidation is calling a nonexistent function somewhere
