@@ -105,7 +105,6 @@ document.addEventListener('DOMContentLoaded', function() {
     //displays error when under 13
     function ageError(error) {
         var msgElem = document.getElementById('birthdateMessage');
-        console.log(error);
         msgElem.innerHTML = error;
     }
 });
